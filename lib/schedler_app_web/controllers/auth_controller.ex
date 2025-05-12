@@ -128,9 +128,13 @@ defmodule SchedlerAppWeb.AuthController do
 
         IO.inspect(user_params, label: "adding google account")
         add_google_account(conn, user_params)
+      else
+        conn
+        |> put_flash(:info, "Google account already linked.")
+        |> redirect(to: "/admin/dashboard")
       end
     else
-      IO.inspect(email, label: "logging in")
+      IO.inspect(user_params, label: "logging in")
       login(conn, user_params)
     end
   end
