@@ -35,4 +35,5 @@ schedler_app-*.tar
 npm-debug.log
 /assets/node_modules/
 
-.env
+config.bat
+node_modules

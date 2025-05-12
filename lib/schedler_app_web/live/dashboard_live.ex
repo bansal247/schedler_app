@@ -40,7 +40,7 @@ defmodule SchedlerAppWeb.DashboardLive do
           </button>
         </div>
       </div>
-      
+
     <!-- Main Content -->
       <div class="w-3/4 p-8">
         <div class="p-6">
@@ -143,7 +143,7 @@ defmodule SchedlerAppWeb.DashboardLive do
             <p>No scheduled meetings found.</p>
           <% end %>
         </div>
-        
+
     <!-- Display Google Calendar Events -->
         <div>
           <h2 class="text-lg font-bold mb-4">Google Calendar Events</h2>
@@ -176,8 +176,25 @@ defmodule SchedlerAppWeb.DashboardLive do
 
         # Fetch user token and expiry from the database
         user = Accounts.get_user!(user_id)
-        user_token = user.google_token
-        token_expiry = user.google_token_expires_at
+
+        IO.inspect(user.google_token_expires_at, label: "Token Expiry")
+        # Check if the token is expired and refresh if necessary
+        {_, user_token, token_expiry} =
+          if token_expired?(user.google_token_expires_at) do
+            {:ok, refreshed_user} = Accounts.refresh_google_token(user)
+
+            {
+              refreshed_user,
+              refreshed_user.google_token,
+              refreshed_user.google_token_expires_at
+            }
+          else
+            {
+              user,
+              user.google_token,
+              user.google_token_expires_at
+            }
+          end
 
         accounts =
           Accounts.get_user_accounts(user_id)
@@ -189,8 +206,6 @@ defmodule SchedlerAppWeb.DashboardLive do
               false
             end
           end)
-
-        IO.inspect(accounts, label: "Accounts")
 
         events =
           accounts
@@ -396,14 +411,25 @@ defmodule SchedlerAppWeb.DashboardLive do
           DateTime.compare(start_time, w.end_hour) == :lt
       end)
 
-    {:ok, start_dt} = DateTime.from_naive(start_time, "Etc/UTC")
-    {:ok, end_dt} = DateTime.from_naive(end_time, "Etc/UTC")
+    naive_start = DateTime.to_naive(start_time)
+    naive_end = DateTime.to_naive(end_time)
 
     # Check for clashes with external calendar events
     event_clash =
       Enum.any?(all_events, fn event ->
         start_raw = event["start"]["dateTime"] || event["start"]["date"]
         end_raw = event["end"]["dateTime"] || event["end"]["date"]
+        time_zone = event["start"]["timeZone"] || "Etc/UTC"
+
+        {:ok, start_dt} =
+          naive_start
+          |> Timex.to_datetime(time_zone)
+          |> DateTime.shift_zone("Etc/UTC")
+
+        {:ok, end_dt} =
+          naive_end
+          |> Timex.to_datetime(time_zone)
+          |> DateTime.shift_zone("Etc/UTC")
 
         with {:ok, event_start_dt} <- parse_to_utc(start_raw),
              {:ok, event_end_dt} <- parse_to_utc(end_raw) do
