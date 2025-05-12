@@ -3,9 +3,9 @@
 ## Setup
 1. For Ueberauth these scopes are required in google cloud project `email profile https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/gmail.send`
 
-2. Need `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `HUBSPOT_CLIENT_ID`, `HUBSPOT_CLIENT_SECRET`, `OPENAI_API_KEY` and `REDIRECT_URI` in env
+2. Need `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `HUBSPOT_CLIENT_ID`, `HUBSPOT_CLIENT_SECRET`, `OPENAI_API_KEY` , `HUBSPOT_REDIRECT_URI` and `GOOGLE_REDIRECT_URI` in env like `http://localhost:4000/auth/hubspot/callback` and `http://localhost:4000/auth/google/callback`
 
-3. Hubspot need `to_be_added` scopes
+3. Hubspot need `crm.objects.contacts.read` scope
 4. Openai api is using `gpt-4.1` model
 
 ## To start your Phoenix server:

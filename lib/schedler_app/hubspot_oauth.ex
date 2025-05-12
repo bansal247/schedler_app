@@ -1,39 +1,35 @@
-defmodule AdvisorScheduling.HubspotOauth do
+defmodule SchedlerApp.HubspotOauth do
   use OAuth2.Strategy
 
   @authorization_url "https://app.hubspot.com/oauth/authorize"
   @token_url "https://api.hubapi.com/oauth/v1/token"
 
-  defp client_id, do: System.fetch_env!("HUBSPOT_CLIENT_ID")
-  defp client_secret, do: System.fetch_env!("HUBSPOT_CLIENT_SECRET")
-  defp redirect_uri, do: System.fetch_env!("REDIRECT_URI")
-
   def client do
     OAuth2.Client.new(
       strategy: __MODULE__,
-      client_id: client_id(),
-      client_secret: client_secret(),
+      client_id: System.get_env("HUBSPOT_CLIENT_ID"),
+      client_secret: System.get_env("HUBSPOT_CLIENT_SECRET"),
       site: "https://api.hubapi.com",
       authorize_url: @authorization_url,
       token_url: @token_url,
-      redirect_uri: redirect_uri()
+      redirect_uri: System.get_env("HUBSPOT_REDIRECT_URI")
     )
   end
 
   def authorize_url!(params \\ []) do
     client()
     |> put_param(:scope, "crm.objects.contacts.read")
-    |> put_param(:redirect_uri, redirect_uri())
-    |> put_param(:client_id, client_id())
-    |> put_param(:client_secret, client_secret())
+    |> put_param(:redirect_uri, System.get_env("HUBSPOT_REDIRECT_URI"))
+    |> put_param(:client_id, System.get_env("HUBSPOT_CLIENT_ID"))
+    |> put_param(:client_secret, System.get_env("HUBSPOT_CLIENT_SECRET"))
     |> OAuth2.Client.authorize_url!(params)
   end
 
   def get_token!(params \\ [], headers \\ []) do
     client()
-    |> put_param(:redirect_uri, redirect_uri())
-    |> put_param(:client_id, client_id())
-    |> put_param(:client_secret, client_secret())
+    |> put_param(:redirect_uri, System.get_env("HUBSPOT_REDIRECT_URI"))
+    |> put_param(:client_id, System.get_env("HUBSPOT_CLIENT_ID"))
+    |> put_param(:client_secret, System.get_env("HUBSPOT_CLIENT_SECRET"))
     |> OAuth2.Client.get_token!(params, headers)
   end
 

@@ -10,14 +10,24 @@ defmodule SchedlerAppWeb.Router do
     plug :put_secure_browser_headers
   end
 
-  pipeline :api do
-    plug :accepts, ["json"]
-  end
-
   scope "/", SchedlerAppWeb do
     pipe_through :browser
 
     get "/", PageController, :home
+    live "/schedule/:id", ScheduleLive, :show
+  end
+
+  scope "/auth", SchedlerAppWeb do
+    pipe_through :browser
+
+    get "/:provider", AuthController, :request
+    get "/:provider/callback", AuthController, :callback
+  end
+
+  scope "/admin", SchedlerAppWeb do
+    pipe_through :browser
+
+    live "/dashboard", DashboardLive
   end
 
   # Other scopes may use custom stacks.
