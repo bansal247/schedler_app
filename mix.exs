@@ -63,6 +63,7 @@ defmodule SchedlerApp.MixProject do
       {:ueberauth, "~> 0.7.0"},
       {:ueberauth_google, "~> 0.10.0"},
       {:oauth2, "~> 2.0"},
+      {:timex, "~> 3.7"}
     ]
   end
 
